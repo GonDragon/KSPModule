@@ -5,16 +5,11 @@ from KSPModule.Parser import Parser
 
 class ParserTestCase(unittest.TestCase):
 
-    def setUp(self):
-        self.commented = Parser("//This is an example\n" +
-                                "MODULE //This is the module type\n" +
-                                "{\n" +
-                                "  name = somename //This is the module name\n" +
-                                "}")
+    def loadCFG(self, file: str):
+        with open('tests/input/{0}.cfg'.format(file), 'r', errors='ignore') as cfgFile:
+            return Parser(''.join(cfgFile.readlines()))
 
     def test_deleteComments(self):
-        uncommented = Parser("MODULE\n" +
-                             "{\n" +
-                             "  name = somename\n" +
-                             "}")
-        self.assertEqual(self.commented.raw, uncommented.raw)
+        commented = self.loadCFG('simple')
+        uncommented = self.loadCFG('simple_commented')
+        self.assertEqual(commented.raw, uncommented.raw)
