@@ -38,9 +38,20 @@ class Module:
             'The module does not contain the attribute "{0}".'.format(key))
 
     def add_module(self, module):
+        """
+        Add a new module to the contents of this module.
+        """
         if not type(module) is Module:
             raise TypeError
         self.modules.append(module)
+
+    def get_modules(self):
+        """
+        Returns a list with all the modules contained in this module.
+        Individual modules are not copies, so any change in these will
+        take effect on contained modules.
+        """
+        return self.modules.copy()
 
 
 class Attribute:

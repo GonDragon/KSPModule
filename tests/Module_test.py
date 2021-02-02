@@ -31,3 +31,9 @@ class ModuleTestCase(unittest.TestCase):
         self.empty_module.add_attribute('bar', 'bar')
 
         self.assertEqual(self.empty_module.get_attribute('foo', 3), '3')
+
+    def test_module_saved(self):
+        new_module = Module()
+        new_module.add_module(self.empty_module)
+
+        self.assertIn(self.empty_module, new_module.get_modules())
