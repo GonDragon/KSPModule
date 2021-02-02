@@ -6,7 +6,8 @@ class Module:
 
     def __init__(self, type: str = 'MODULE'):
         self.type = type
-        self.content = []
+        self.attributes = []
+        self.modules = []
 
     def add_attribute(self, key: str, value: str):
         """
@@ -14,7 +15,7 @@ class Module:
         a pair key-value of strings.
         One Module can host multiple attributes with the same name.
         """
-        self.content.append(Attribute(key, value))
+        self.attributes.append(Attribute(key, value))
 
     def get_attribute(self, key: str, n: int = 1):
         """
@@ -24,10 +25,10 @@ class Module:
         By default, it returns the first one (n=1).
         """
         i = 1
-        for obj in self.content:
-            if type(obj) is Attribute and obj.key == key:
+        for attr in self.attributes:
+            if attr.key == key:
                 if n == i:
-                    return obj.value
+                    return attr.value
                 i += 1
 
         if i > 1:
@@ -35,6 +36,11 @@ class Module:
                 'The attribute "{0}" does not have that many occurrences.'.format(key))
         raise KeyError(
             'The module does not contain the attribute "{0}".'.format(key))
+
+    def add_module(self, module):
+        if not type(module) is Module:
+            raise TypeError
+        self.modules.append(module)
 
 
 class Attribute:
