@@ -9,6 +9,28 @@ class Module:
         self.attributes = []
         self.modules = []
 
+    def __str__(self):
+        return self._ident_str()
+
+    def _ident_str(self, nest_level: int = 0):
+        br = '\n'
+        indent = '  '
+        indent_level = indent * nest_level
+
+        result = ''
+        result += indent_level + self.type + br
+        result += indent_level + '{' + br
+
+        for attribute in self.attributes:
+            result += indent_level + indent + attribute.key + ' = ' + attribute.value + br
+
+        for module in self.modules:
+            result += module._ident_str(nest_level + 1) + br
+
+        result += indent_level + '}'
+
+        return result
+
     def add_attribute(self, key: str, value: str):
         """
         Add a new attribute to the module. The attribute must be
