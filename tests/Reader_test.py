@@ -7,7 +7,7 @@ from KSPModule.Module import Module
 class ReaderTestCase(unittest.TestCase):
 
     def loadCFG(self, file: str):
-        with open('tests/input/{0}.cfg'.format(file), 'r', errors='ignore') as cfgFile:
+        with open('tests/input/{0}.cfg'.format(file), 'r', errors='ignore', encoding='utf-8') as cfgFile:
             return Reader(cfgFile)
 
     def test_deleteComments(self):
