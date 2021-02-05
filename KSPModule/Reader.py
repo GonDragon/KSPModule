@@ -2,9 +2,6 @@ import re
 from io import StringIO
 from KSPModule.Module import Module
 
-# This case match the name of a valid Key/Value parameter
-REG_VALUE = r'[\w #.,-]+'
-
 # This case match closing modules without modules inside.
 # Group 1: Attributes of the current Module
 # Group 2: Continue of the rawstring outside the current Module
@@ -16,13 +13,13 @@ REG_CLOSE = re.compile(
 # Group 2: Type of a new opening module
 # Group 3: Rawstring beyond the new opening module
 REG_OPEN = re.compile(
-    r'((?:\s*' + REG_VALUE + r'\s*=\s*' + REG_VALUE + r'\s*)*)\s*(\w+)\s*\{\s*(.*)', flags=re.DOTALL)
+    r'((?:\s*.*\s*=\s*.*\s*)*)(\w+)\s*\{\s*((?:.*\s*)*)', flags=re.MULTILINE)
 
 # This case match attributes
 # Group 1: Key
 # Group 2: Value
 REG_ATTR = re.compile(
-    r'(' + REG_VALUE + r')\s*=\s*(' + REG_VALUE + r')')
+    r'(.*)\s*=\s*(.*)')
 
 # This case match emptiness
 REG_EMPTY = re.compile(
