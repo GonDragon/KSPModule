@@ -3,7 +3,7 @@ from io import StringIO
 from KSPModule.Module import Module
 
 # This case match the name of a valid Key/Value parameter
-REG_VALUE = r'[\w#.,-]+'
+REG_VALUE = r'[\w #.,-]+'
 
 # This case match closing modules without modules inside.
 # Group 1: Attributes of the current Module
@@ -22,7 +22,7 @@ REG_OPEN = re.compile(
 # Group 1: Key
 # Group 2: Value
 REG_ATTR = re.compile(
-    r'(' + REG_VALUE + r')\s*=\s*(' + REG_VALUE + r')', flags=re.DOTALL)
+    r'(' + REG_VALUE + r')\s*=\s*(' + REG_VALUE + r')')
 
 # This case match emptiness
 REG_EMPTY = re.compile(
