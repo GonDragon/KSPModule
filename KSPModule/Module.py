@@ -74,6 +74,16 @@ class Module:
         raise KeyError(
             'The module does not contain the attribute "{0}".'.format(key))
 
+    def has_attribute(self, key: str) -> bool:
+        """
+        Return true if the module has at least one ocurrence of the key attribute.
+        Return false otherwise.
+        """
+        for attr in self.attributes:
+            if attr.key == key:
+                return True
+        return False
+
     def add_module(self, module):
         """
         Add a new module to the contents of this module.

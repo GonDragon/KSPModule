@@ -37,3 +37,9 @@ class ModuleTestCase(unittest.TestCase):
         new_module.add_module(self.empty_module)
 
         self.assertIn(self.empty_module, new_module.get_modules())
+
+    def test_has_attribute(self):
+        self.empty_module.add_attribute('foo', 'bar')
+
+        self.assertTrue(self.empty_module.has_attribute('foo'))
+        self.assertFalse(self.empty_module.has_attribute('bar'))
