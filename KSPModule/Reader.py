@@ -25,9 +25,9 @@ REG_EMPTY = re.compile(
     r'^\s*$', flags=re.DOTALL)
 
 
-class Parser:
+class Reader:
     """
-    Parser for the CFG files.
+    Reader for the CFG files.
     """
 
     def __init__(self, raw):

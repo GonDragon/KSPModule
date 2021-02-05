@@ -1,14 +1,14 @@
 import unittest
 
-from KSPModule.Parser import Parser
+from KSPModule.Reader import Reader
 from KSPModule.Module import Module
 
 
-class ParserTestCase(unittest.TestCase):
+class ReaderTestCase(unittest.TestCase):
 
     def loadCFG(self, file: str):
         with open('tests/input/{0}.cfg'.format(file), 'r', errors='ignore') as cfgFile:
-            return Parser(''.join(cfgFile.readlines()))
+            return Reader(''.join(cfgFile.readlines()))
 
     def test_deleteComments(self):
         commented = self.loadCFG('simple')
