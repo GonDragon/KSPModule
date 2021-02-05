@@ -44,7 +44,7 @@ class Reader:
         self.n = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> Module:
         if self.n < len(self.modules):
             result = self.modules[self.n]
             self.n += 1
