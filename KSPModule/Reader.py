@@ -1,4 +1,5 @@
 import re
+from io import StringIO
 from KSPModule.Module import Module
 
 # This case match closing modules without modules inside.
@@ -28,19 +29,36 @@ REG_EMPTY = re.compile(
 class Reader:
     """
     Reader for the CFG files.
+    Receive an Open file to read.
     """
 
-    def __init__(self, raw):
-        self.raw = raw
-        self._remove_comments()
+    def __init__(self, file: StringIO):
+        raw = self._remove_comments(''.join(file.readlines()))
+        module_container = Module()
+        self._get_content(module_container, raw)
 
-    def _remove_comments(self):
-        lines = self.raw.split('\n')
+        self.modules = module_container.get_modules()
+        self.n = 0
+
+    def __iter__(self):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.modules):
+            result = self.modules[self.n]
+            self.n += 1
+            return result
+        else:
+            raise StopIteration
+
+    def _remove_comments(self, text: str):
+        lines = text.split('\n')
         lines = list(map(lambda string: re.sub(
             re.compile("//.*"), "", string).rstrip(), lines))
         while '' in lines:
             lines.remove('')
-        self.raw = '\n'.join(lines)
+        return '\n'.join(lines)
 
     def _get_content(self, module: Module, raw: str):
 
@@ -74,6 +92,4 @@ class Reader:
         """
         Returns a list containing all the base modules.
         """
-        module_container = Module()
-        self._get_content(module_container, self.raw)
-        return module_container.get_modules()
+        return self.modules.copy()

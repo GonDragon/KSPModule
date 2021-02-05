@@ -12,6 +12,21 @@ class Module:
     def __str__(self):
         return self._ident_str()
 
+    def __eq__(self, other):
+        if not type(other) is Module:
+            return False
+
+        equal = True
+        for attribute in self.attributes:
+            equal = equal and (attribute in other.attributes)
+            if not equal:
+                return False
+        for module in self.modules:
+            equal = equal and (module in other.modules)
+            if not equal:
+                return False
+        return equal
+
     def _ident_str(self, nest_level: int = 0):
         br = '\n'
         indent = '  '

@@ -8,12 +8,12 @@ class ReaderTestCase(unittest.TestCase):
 
     def loadCFG(self, file: str):
         with open('tests/input/{0}.cfg'.format(file), 'r', errors='ignore') as cfgFile:
-            return Reader(''.join(cfgFile.readlines()))
+            return Reader(cfgFile)
 
     def test_deleteComments(self):
         commented = self.loadCFG('simple')
         uncommented = self.loadCFG('simple_commented')
-        self.assertEqual(commented.raw, uncommented.raw)
+        self.assertEqual(next(commented), next(uncommented))
 
     def test_create_one_module(self):
         simple = self.loadCFG('simple')
