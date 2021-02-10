@@ -64,9 +64,6 @@ class ReaderTestCase(unittest.TestCase):
         self.assertEqual(len(modules), 1)
         self.assertIsInstance(modules[0], Module)
 
-    def test_loose_attribute(self):
-        self.assertRaises(SyntaxError, self.loadCFG, 'loose_attribute')
-
     def test_unbalanced_brackets(self):
         self.assertRaises(UnbalancedBracketsError,
                           self.loadCFG, 'unbalanced_1')

@@ -20,6 +20,7 @@ class Reader:
 
         tokenizer = Tokenizer()
         self.modules = []  # List of modules on the base file
+        self.loose_attributes = []  # List of all the loose attributes on the base file
 
         for line in lines:
             line = self._remove_comments(line)
@@ -38,10 +39,11 @@ class Reader:
                 nextt = None
 
             if currentt.type is Token.PAIR:
-                if len(module_stack) == 0:
-                    raise SyntaxError('There are loose attributes on the file')
                 key, value = currentt.value
-                module_stack[-1].add_attribute(key, value)
+                if len(module_stack) == 0:
+                    self.loose_attributes.append((key, value))
+                else:
+                    module_stack[-1].add_attribute(key, value)
             elif currentt.type is Token.NAME:
                 if nextt and nextt.type is Token.OPENER:
                     tokens.pop(0)
@@ -85,6 +87,12 @@ class Reader:
         Returns a list containing all the base modules.
         """
         return self.modules.copy()
+
+    def get_attributes(self):
+        """
+        Returns a list containing all the loose attributes.
+        """
+        return self.loose_attributes.copy()
 
 
 class UnbalancedBracketsError(BaseException):
