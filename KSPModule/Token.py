@@ -4,7 +4,7 @@ import re
 # This case match attributes
 # Group 1: Key
 # Group 2: Value
-REG_PAIR = re.compile(r'^(.+)\s*=\s*(.+)$')
+REG_PAIR = re.compile(r'^(.+)\s*=\s*(.*)$')
 
 REG_NAME = re.compile(r'^\w+$')
 
