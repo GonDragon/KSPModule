@@ -8,9 +8,11 @@ REG_PAIR = re.compile(r'^(.+)\s*=\s*(.+)$')
 
 REG_NAME = re.compile(r'^\w+$')
 
+REG_NAMEOPENER = re.compile(r'^(\w+)\s*\{$')
+
 REG_OPENER = re.compile(r'^\{$')
 
-REG_CLOSER = re.compile(r'^\}$')
+REG_CLOSER = re.compile(r'\}')
 
 
 class Token:
@@ -20,10 +22,11 @@ class Token:
 
     PAIR = 1
     NAME = 2
-    OPENER = 3
-    CLOSER = 4
+    NAMEOPENER = 3
+    OPENER = 4
+    CLOSER = 5
 
-    UNKNOWN = 5
+    UNKNOWN = 6
 
     def __init__(self, type: int = UNKNOWN, value: object = None):
         self.type = type
@@ -41,6 +44,7 @@ class Tokenizer:
         self.identifiers = [
             (REG_PAIR, Token.PAIR),
             (REG_NAME, Token.NAME),
+            (REG_NAMEOPENER, Token.NAMEOPENER),
             (REG_OPENER, Token.OPENER),
             (REG_CLOSER, Token.CLOSER)
         ]
@@ -52,11 +56,7 @@ class Tokenizer:
         """
         Analize the string, and convert it into a token.
         """
-        token = self._analize(string)
-        if token.type == Token.UNKNOWN:
-            print('Unknown line found. Ignoring. Value: {}'.format(token.value))
-        else:
-            self.tokens.append(token)
+        self.tokens += self._analize(string)
 
     def _analize(self, string: str) -> Token:
         for identifier in self.identifiers:
@@ -65,11 +65,17 @@ class Tokenizer:
                 match_type = identifier[1]
                 if match_type == Token.PAIR:
                     k, v = match.groups()
-                    return Token(type=Token.PAIR, value=(k.strip(), v.strip()))
+                    return [Token(type=Token.PAIR, value=(k.strip(), v.strip()))]
                 if match_type == Token.NAME:
-                    return Token(type=Token.NAME, value=string)
+                    return [Token(type=Token.NAME, value=string)]
                 if match_type == Token.OPENER:
-                    return Token(type=Token.OPENER)
+                    return [Token(type=Token.OPENER)]
+                if match_type == Token.NAMEOPENER:
+                    return [Token(type=Token.NAME, value=string), Token(type=Token.OPENER)]
                 if match_type == Token.CLOSER:
-                    return Token(type=Token.CLOSER)
-        return Token(type=Token.UNKNOWN, value=string)
+                    tokens = []
+                    for _ in re.findall(identifier[0], string):
+                        tokens.append(Token(type=Token.CLOSER))
+                    return tokens
+        print('Unknown line found. Ignoring. Value: {}'.format(string))
+        return []
