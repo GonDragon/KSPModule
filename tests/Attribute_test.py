@@ -1,6 +1,6 @@
 import unittest
 
-from KSPModule.Module import Attribute
+from KSPModule import Attribute
 
 
 class AttributeTestCase(unittest.TestCase):

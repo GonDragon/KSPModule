@@ -1,6 +1,6 @@
 import unittest
 
-from KSPModule.Module import Module
+from KSPModule import Module
 
 
 class ModuleTestCase(unittest.TestCase):

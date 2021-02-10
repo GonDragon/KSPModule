@@ -1,7 +1,7 @@
 import unittest
 
-from KSPModule.Reader import Reader, UnbalancedBracketsError
-from KSPModule.Module import Module
+from KSPModule import Reader, UnbalancedBracketsError
+from KSPModule import Module
 
 
 class ReaderTestCase(unittest.TestCase):
