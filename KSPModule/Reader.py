@@ -39,7 +39,7 @@ class Reader:
 
             if currentt.type is Token.PAIR:
                 if len(module_stack) == 0:
-                    raise NotImplementedError  # Syntax error, loose atributes on the file
+                    raise SyntaxError('There are loose attributes on the file')
                 key, value = currentt.value
                 module_stack[-1].add_attribute(key, value)
             elif currentt.type is Token.NAME:
@@ -56,10 +56,13 @@ class Reader:
                     closed_module = module_stack.pop()
                     module_stack[-1].add_module(closed_module)
                 else:
-                    raise NotImplementedError  # Unbalanced brackets error
+                    # Unbalanced brackets error
+                    raise UnbalancedBracketsError(
+                        'Closing an unexistent module')
 
         if len(module_stack) > 0:
-            raise NotImplementedError  # Unbalanced brackets error
+            # Unbalanced brackets error
+            raise UnbalancedBracketsError('Modules left open')
         self.n = 0
 
     def __iter__(self):
@@ -82,3 +85,10 @@ class Reader:
         Returns a list containing all the base modules.
         """
         return self.modules.copy()
+
+
+class UnbalancedBracketsError(BaseException):
+    """
+    Exception that occurs when the parsed code has unbalanced brackets.
+    """
+    pass
