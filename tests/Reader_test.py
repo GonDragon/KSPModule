@@ -1,6 +1,6 @@
 import unittest
 
-from KSPModule.Reader import Reader
+from KSPModule.Reader import Reader, UnbalancedBracketsError
 from KSPModule.Module import Module
 
 
@@ -52,3 +52,20 @@ class ReaderTestCase(unittest.TestCase):
         modules = nested.get_modules()
         self.assertEqual(len(modules), 1)
         self.assertIsInstance(modules[0], Module)
+
+    def test_works_with_strings(self):
+        simple = self.loadCFG('simple')
+        modules = simple.get_modules()
+
+        string = str(modules[0])
+        new_reader = Reader(string)
+        modules = new_reader.get_modules()
+
+        self.assertEqual(len(modules), 1)
+        self.assertIsInstance(modules[0], Module)
+
+    def test_unbalanced_brackets(self):
+        self.assertRaises(UnbalancedBracketsError,
+                          self.loadCFG, 'unbalanced_1')
+        self.assertRaises(UnbalancedBracketsError,
+                          self.loadCFG, 'unbalanced_2')

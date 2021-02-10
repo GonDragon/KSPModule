@@ -1,43 +1,70 @@
 import re
-from io import StringIO
+from io import IOBase
 from KSPModule.Module import Module
-
-# This case match closing modules without modules inside.
-# Group 1: Attributes of the current Module
-# Group 2: Continue of the rawstring outside the current Module
-REG_CLOSE = re.compile(
-    r'([^\{\}]*)\}\s*(.*)', flags=re.DOTALL)
-
-# This case match opening modules
-# Group 1: Attributes of the current Module
-# Group 2: Type of a new opening module
-# Group 3: Rawstring beyond the new opening module
-REG_OPEN = re.compile(
-    r'((?:\s*.*\s*=\s*.*\s*)*)(\w+)\s*\{\s*((?:.*\s*)*)', flags=re.MULTILINE)
-
-# This case match attributes
-# Group 1: Key
-# Group 2: Value
-REG_ATTR = re.compile(
-    r'(.*)\s*=\s*(.*)')
-
-# This case match emptiness
-REG_EMPTY = re.compile(
-    r'^\s*$', flags=re.DOTALL)
+from KSPModule.Token import Tokenizer, Token
 
 
 class Reader:
     """
     Reader for the CFG files.
-    Receive an Open file to read.
+    Receive an String, or an Open file to read.
     """
 
-    def __init__(self, file: StringIO):
-        raw = self._remove_comments(''.join(file.readlines()))
-        module_container = Module()
-        self._get_content(module_container, raw)
+    def __init__(self, file):
+        if isinstance(file, str):
+            lines = file.split('\n')
+        elif issubclass(type(file), IOBase):
+            lines = file.readlines()
+        else:
+            raise TypeError
 
-        self.modules = module_container.get_modules()
+        tokenizer = Tokenizer()
+        self.modules = []  # List of modules on the base file
+        self.loose_attributes = []  # List of all the loose attributes on the base file
+
+        for line in lines:
+            line = self._remove_comments(line)
+            if line == '':
+                continue
+            tokenizer.analize(line)
+
+        tokens = tokenizer.getTokens()
+        module_stack = []  # Stack of nested modules
+
+        while len(tokens) > 0:
+            currentt = tokens.pop(0)
+            try:
+                nextt = tokens[0]
+            except IndexError:
+                nextt = None
+
+            if currentt.type is Token.PAIR:
+                key, value = currentt.value
+                if len(module_stack) == 0:
+                    self.loose_attributes.append((key, value))
+                else:
+                    module_stack[-1].add_attribute(key, value)
+            elif currentt.type is Token.NAME:
+                if nextt and nextt.type is Token.OPENER:
+                    tokens.pop(0)
+                    module_stack.append(Module(currentt.value))
+                else:
+                    print('Ignoring line. Attribute without value or Empty module found: {}'.format(
+                        currentt.value))
+            elif currentt.type is Token.CLOSER:
+                if len(module_stack) == 1:
+                    self.modules.append(module_stack.pop())
+                elif len(module_stack) > 1:
+                    closed_module = module_stack.pop()
+                    module_stack[-1].add_module(closed_module)
+                else:
+                    # Unbalanced brackets error
+                    raise UnbalancedBracketsError(
+                        'Closing an unexistent module')
+
+        if len(module_stack) > 0:
+            # Unbalanced brackets error
+            raise UnbalancedBracketsError('Modules left open')
         self.n = 0
 
     def __iter__(self):
@@ -53,42 +80,23 @@ class Reader:
             raise StopIteration
 
     def _remove_comments(self, text: str):
-        lines = text.split('\n')
-        lines = list(map(lambda string: re.sub(
-            re.compile("//.*"), "", string).rstrip(), lines))
-        while '' in lines:
-            lines.remove('')
-        return '\n'.join(lines)
-
-    def _get_content(self, module: Module, raw: str):
-
-        raw_attributes = ''
-        current_raw = raw
-
-        while not re.match(REG_CLOSE, current_raw):
-            if re.match(REG_EMPTY, current_raw):
-                return ''
-            more_attr, module_type, current_raw = re.match(
-                REG_OPEN, current_raw).groups()
-            raw_attributes += more_attr
-            new_module = Module(module_type)
-            current_raw = self._get_content(new_module, current_raw)
-            module.add_module(new_module)
-
-        last_attr, raw_continue = re.match(REG_CLOSE, current_raw).groups()
-        raw_attributes += last_attr
-
-        for k, v in self._attr_from_raw(raw_attributes):
-            module.add_attribute(k, v)
-
-        return raw_continue
-
-    def _attr_from_raw(self, rawattr: str):
-
-        return re.findall(REG_ATTR, rawattr)
+        return re.sub(re.compile("//.*"), "", text).strip()
 
     def get_modules(self):
         """
         Returns a list containing all the base modules.
         """
         return self.modules.copy()
+
+    def get_attributes(self):
+        """
+        Returns a list containing all the loose attributes.
+        """
+        return self.loose_attributes.copy()
+
+
+class UnbalancedBracketsError(BaseException):
+    """
+    Exception that occurs when the parsed code has unbalanced brackets.
+    """
+    pass
